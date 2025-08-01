@@ -4,7 +4,8 @@ Configuration management for PyAirtable Automation Services.
 
 import os
 from typing import List
-from pydantic import BaseSettings, validator
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -58,21 +59,24 @@ class Settings(BaseSettings):
     METRICS_ENABLED: bool = True
     HEALTH_CHECK_INTERVAL: int = 30
     
-    @validator("ALLOWED_ORIGINS", pre=True)
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
     def parse_cors_origins(cls, v):
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
         return v
     
-    @validator("ALLOWED_HOSTS", pre=True)
+    @field_validator("ALLOWED_HOSTS", mode="before")
+    @classmethod
     def parse_allowed_hosts(cls, v):
         """Parse allowed hosts from string or list."""
         if isinstance(v, str):
             return [host.strip() for host in v.split(",")]
         return v
     
-    @validator("ALLOWED_EXTENSIONS", pre=True)
+    @field_validator("ALLOWED_EXTENSIONS", mode="before")
+    @classmethod
     def parse_allowed_extensions(cls, v):
         """Parse allowed extensions from string or list."""
         if isinstance(v, str):
@@ -80,17 +84,18 @@ class Settings(BaseSettings):
             return [ext if ext.startswith(".") else f".{ext}" for ext in extensions]
         return v
     
-    @validator("UPLOAD_DIRECTORY")
+    @field_validator("UPLOAD_DIRECTORY")
+    @classmethod
     def validate_upload_directory(cls, v):
         """Ensure upload directory exists."""
         os.makedirs(v, exist_ok=True)
         return v
     
-    class Config:
-        """Pydantic configuration."""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": True
+    }
 
 
 # Create global settings instance

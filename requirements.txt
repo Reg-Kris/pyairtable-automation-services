@@ -13,6 +13,7 @@ redis[hiredis]==5.0.1
 
 # Configuration management
 pydantic[dotenv]==2.5.0
+pydantic-settings>=2.0.0
 python-dotenv==1.0.0
 
 # File processing dependencies
